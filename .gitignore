@@ -65,6 +65,8 @@ coverage/
 
 # Environment variables (SENSITIVE - nunca commitear)
 .env
+.env.*
+!.env.example
 .env.local
 .env.*.local
 
