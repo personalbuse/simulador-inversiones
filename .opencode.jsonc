@@ -1,0 +1,128 @@
+{
+  "$schema": "https://opencode.ai/schemas/opencode.json",
+  "version": "1.0",
+  "name": "Simulador Inversiones FIUP",
+  "description": "Simulador bursátil educativo — FastAPI + React + PostgreSQL",
+
+  "agent": {
+    "default": "backend-dev",
+    "routing": "auto"
+  },
+
+  "agents": {
+    "backend-dev": {
+      "description": "Python/FastAPI backend developer",
+      "instructions": [
+        "Eres experto en Python 3.12+, FastAPI, SQLAlchemy async, PostgreSQL.",
+        "Todas las funciones deben ser async. Usa AsyncSession siempre.",
+        "Validaciones con Pydantic v2 (Field, EmailStr, SecretStr).",
+        "Protege endpoints con rate_limit, Depends(get_current_user), logs de auditoría.",
+        "Usa with_for_update() en transacciones de balance/portfolio.",
+        "Nunca confíes en claims del JWT para rol/is_active — re-lee de DB.",
+        "Logs en inglés con logger.warning/error, nunca loguees secrets.",
+        "Código en inglés, comentarios solo si explicación no obvia."
+      ]
+    },
+    "frontend-dev": {
+      "description": "React/TypeScript frontend developer",
+      "instructions": [
+        "Eres experto en React 18, TypeScript 5.3, Zustand, TailwindCSS 3.4.",
+        "Tipado estricto: NUNCA any. Usa interfaces exportables.",
+        "Navegación: useNavigate() o <Link to>. Prohibido window.location.href.",
+        "Auth: solo Zustand persist con partialize. Nunca localStorage.getItem manual.",
+        "i18n: t('namespace.key') para TODO texto visible. NO strings hardcodeados.",
+        "Loading/Error/Empty states en cada fetch. Usa componentes ui/.",
+        "AbortController.signal en cada petición axios. Cleanup en useEffect.",
+        "Accesibilidad: aria-label en elementos interactivos, roles en modales.",
+        "Formularios: validación con zod y schemas compartidos."
+      ]
+    },
+    "code-review": {
+      "description": "Pull request reviewer",
+      "instructions": [
+        "Revisa cambios buscando: seguridad, rendimiento, tipado, i18n, accesibilidad.",
+        "Prioridad: 1) Secretos expuestos 2) Anti-patrones de AGENTS.md 3) Tipado any.",
+        "Comentarios concisos: archivo:línea → problema → solución propuesta.",
+        "No hagas comentarios de estilo (prettier/ruff lo cubre)."
+      ]
+    },
+    "security-review": {
+      "description": "Security audit specialist",
+      "instructions": [
+        "Busca: secretos hardcodeados, JWT sin validación, SQL injection, XSS, CSRF.",
+        "Verifica: rate limiting, is_active checks, with_for_update, input validation.",
+        "Confirma que no hay logger.info con datos sensibles.",
+        "Si encuentras secretos en el repo, marca como blocker absoluto."
+      ]
+    },
+    "docs-writer": {
+      "description": "Technical documentation writer",
+      "instructions": [
+        "Documentación técnica concisa en español para usuarios finales.",
+        "README, guías de deploy, manuales de usuario.",
+        "Mantén consistencia con AGENTS.md y FIF.md.",
+        "Sin emojis, sin markdown innecesario, sin autoreferencias."
+      ]
+    }
+  },
+
+  "mcpServers": {
+    "filesystem": {
+      "description": "Acceso al filesystem del proyecto",
+      "enabled": true,
+      "roots": [
+        "${workspaceFolder}",
+        "${workspaceFolder}/backend",
+        "${workspaceFolder}/frontend"
+      ]
+    },
+    "github": {
+      "description": "Operaciones Git: status, diff, log, commit, push, PRs",
+      "enabled": true
+    },
+    "web-search": {
+      "description": "Búsqueda web para documentación y referencias",
+      "enabled": true,
+      "maxResults": 5
+    }
+  },
+
+  "permissions": {
+    "files": {
+      "allow": ["${workspaceFolder}/**"],
+      "deny": [
+        "${workspaceFolder}/.env",
+        "${workspaceFolder}/backend/.env",
+        "${workspaceFolder}/**/node_modules/**",
+        "${workspaceFolder}/**/__pycache__/**",
+        "${workspaceFolder}/**/.venv/**",
+        "${workspaceFolder}/frontend/dist/**"
+      ]
+    },
+    "commands": {
+      "allow": [
+        "npm run dev",
+        "npm run build",
+        "npm run lint",
+        "npm run test",
+        "pytest",
+        "ruff check",
+        "alembic upgrade",
+        "docker compose",
+        "git",
+        "curl"
+      ],
+      "deny": ["rm -rf", "sudo", "chmod 777", "git push --force"]
+    }
+  },
+
+  "tokenEfficiency": {
+    "cavemanMode": true,
+    "compressToolOutput": true,
+    "maxContextWindow": 128000,
+    "summarizeLargeFiles": true,
+    "summarizeThreshold": 500,
+    "enableCaching": true,
+    "cacheStrategy": "lru"
+  }
+}

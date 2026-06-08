@@ -168,19 +168,67 @@ curl http://localhost/health
 
 ---
 
-## 7. Skills locales disponibles
+## 7. LSP & MCP configuration
 
-El proyecto incluye skills en `.agents/skills/` (usar la herramienta `skill` para cargarlas):
+### LSP (Language Server Protocol) — `.vscode/settings.json`
 
-- **`accessibility`** → auditorías WCAG 2.2 (CRÍTICO: 0 aria-* en la app).
-- **`frontend-design`** → UI distintiva, evita estética genérica de IA.
-- **`seo`** → meta tags, structured data, sitemap.
-- **`caveman`** → modo de comunicación comprimido para ahorrar tokens.
-- **`caveman-commit`** → mensajes de commit concisos (Conventional Commits, ≤50 chars).
+| LSP | Archivo | Propósito |
+|---|---|---|
+| Ruff | `charliermarsh.ruff` | Linting + formatting Python (native server) |
+| TypeScript | Bundled in `frontend/node_modules` | Type checking, refactors, imports |
+| ESLint | `dbaeumer.vscode-eslint` | JS/TS linting on save |
+| TailwindCSS | `bradlc.vscode-tailwindcss` | Class completion, CSS preview |
+| Pylance | `ms-python.vscode-pylance` | Python intellisense, type checking (basic) |
+| YAML | `redhat.vscode-yaml` | Docker compose, GitHub Actions schemas |
+
+**Comportamiento**: formatOnSave para Python (Ruff) y frontend (Prettier). Organize imports automático. Ruff native server para respuesta rápida.
+
+### MCP (Model Context Protocol) — `.opencode.jsonc`
+
+| MCP Server | Rol | Enabled |
+|---|---|---|
+| `filesystem` | Acceso RW al workspace | ✅ |
+| `github` | Git status, diff, log, commit, push, PRs | ✅ |
+| `web-search` | Búsqueda externa para referencias | ✅ (max 5) |
+
+### Agents configurados en `.opencode.jsonc`
+
+| Agent | Especialidad |
+|---|---|
+| `backend-dev` | Python/FastAPI async, DB, security |
+| `frontend-dev` | React/TypeScript, Zustand, Tailwind |
+| `code-review` | PR review — seguridad, tipado, i18n |
+| `security-review` | Auditoría de seguridad |
+| `docs-writer` | Documentación técnica |
+
+### Permisos
+
+| Recurso | Allow | Deny |
+|---|---|---|
+| Files | `workspace/**` | `.env`, `node_modules`, `__pycache__` |
+| Commands | `npm *`, `pytest`, `ruff`, `git`, `docker compose` | `sudo`, `rm -rf`, `git push --force` |
 
 ---
 
-## 8. Anti-patrones prohibidos
+## 8. Skills locales disponibles
+
+Skills en `.agents/skills/` (usar `skill` para cargarlas):
+
+| Skill | Uso |
+|---|---|
+| **`python-backend`** | FastAPI, SQLAlchemy, Pydantic v2, async patterns |
+| **`react-frontend`** | React 18, TypeScript, Zustand, Tailwind, i18n |
+| **`docker-infra`** | Docker Compose, nginx, CI/CD |
+| **`token-efficiency`** | Patrones de ahorro de tokens para prompts AI |
+| **`accessibility`** | Auditorías WCAG 2.2 |
+| **`frontend-design`** | UI distintiva, evita estética IA genérica |
+| **`seo`** | Meta tags, structured data, sitemap |
+| **`caveman`** | Comunicación comprimida (-75% tokens) |
+| **`caveman-commit`** | Commits concisos Conventional Commits |
+
+---
+
+## 9. Anti-patrones prohibidos
 
 | ❌ No hacer | ✅ Hacer en su lugar |
 |---|---|
@@ -200,7 +248,23 @@ El proyecto incluye skills en `.agents/skills/` (usar la herramienta `skill` par
 
 ---
 
-## 9. Checklist pre-commit
+## 10. Token efficiency patterns
+
+### Estructura de prompts
+```
+Contexto: <1-2 lines linking to skill/doc>
+Task: <1 line what>
+Files: <paths to touch>
+Constraints: <1 line rules from AGENTS.md>
+Verify: <command to run>
+```
+
+### Caveman mode
+- Eliminar artículos, sujetos, verbos auxiliares.
+- Referencias: `file:line` en vez de copiar código.
+- Skills reutilizables > repetir reglas en cada mensaje.
+
+### Pre-commit
 
 ```bash
 # Backend
@@ -211,12 +275,12 @@ cd frontend && npm run lint && npm run build
 
 # Seguridad
 gitleaks detect --no-banner
-git status  # verificar que no hay .env, secrets.json, etc.
+git status  # verificar .env no está staged
 ```
 
 ---
 
-## 10. Glosario del dominio
+## 11. Glosario del dominio
 
 - **Portafolio**: conjunto de acciones poseídas por un usuario + balance en USD.
 - **Índice bursátil**: indicador de un mercado (S&P 500, IBOVESPA, IPC).
