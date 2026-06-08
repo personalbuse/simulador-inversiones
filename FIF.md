@@ -102,8 +102,8 @@
 ## 🟠 1.22 `PyJWT[crypto]` instala `ecdsa` y `rsa` con CVEs
 - Pendiente: cambiar a `PyJWT` sin extras.
 
-## 🟠 1.23 CSP con `'unsafe-inline'` en scripts
-- Pendiente: nonces o `'strict-dynamic'`.
+## 🟠 1.23 CSP con `'unsafe-inline'` en scripts ✅
+- ✅ Reemplazado por hash SHA-256 del inline script FOUC + `'self'` para bundles Vite.
 
 ## 🟠 1.24 nginx.conf activo sin rate limit ✅
 - ✅ `nginx_backup.conf` eliminado (5.1). Rate limits en el canónico.
