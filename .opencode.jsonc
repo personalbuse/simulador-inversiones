@@ -66,24 +66,27 @@
     }
   },
 
-  "mcpServers": {
+  "mcp": {
     "filesystem": {
-      "description": "Acceso al filesystem del proyecto",
-      "enabled": true,
-      "roots": [
-        "${workspaceFolder}",
-        "${workspaceFolder}/backend",
-        "${workspaceFolder}/frontend"
-      ]
-    },
-    "github": {
-      "description": "Operaciones Git: status, diff, log, commit, push, PRs",
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"],
       "enabled": true
     },
+    "github": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+      "environment": {
+        "GITHUB_TOKEN": "{env:GITHUB_TOKEN}"
+      },
+      "enabled": false
+    },
     "web-search": {
-      "description": "Búsqueda web para documentación y referencias",
-      "enabled": true,
-      "maxResults": 5
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-brave-search"],
+      "environment": {
+        "BRAVE_API_KEY": "{env:BRAVE_API_KEY}"
+      },
+      "enabled": false
     }
   },
 
