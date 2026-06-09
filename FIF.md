@@ -1,9 +1,9 @@
 # FIF.md — Findings, Issues & Fixes Plan
 
 > **Auditoría completa del proyecto Simulador de Inversiones FIUP**
-> **Fecha**: 2026-06-08
-> **Versión**: v2.0.0
-> **Estado**: Fase 1 (seguridad) en progreso — Fase 5 (bugs) mayormente completada
+> **Fecha**: 2026-06-09
+> **Versión**: v2.1.0
+> **Estado**: Fase 1 (seguridad) 32/52 ✅ — Fase 5 (bugs) mayormente completada
 
 ---
 
@@ -11,14 +11,14 @@
 
 | Fase | Cat. | Total | ✅ Resuelto | 🔴 Restante |
 |:----:|------|:----:|:-----------:|:-----------:|
-| **1** | 🔒 Seguridad | 52 | **24** | 28 |
+| **1** | 🔒 Seguridad | 52 | **32** | 20 |
 | **2** | ⚡ Optimización | 34 | **11** | 23 |
 | **3** | 🧑‍💻 Usabilidad | 45 | **15** | 30 |
 | **4** | 🎨 Diseño y Responsividad | 29 | **8** | 21 |
 | **5** | 🐛 Bugs y Duplicidad | 44 | **20** | 24 |
-| | **TOTAL** | **204** | **78** | **126** |
+| | **TOTAL** | **204** | **86** | **118** |
 
-> Últimos fixes (esta sesión): 195 tests / 75% cobertura, ESLint no-explicit-any 0 errors, httpOnly cookies auth, CSP SHA-256 hash, AbortController en 8 páginas, zod validation 4 formularios, validación compartida
+> Últimos fixes (esta sesión): EditProfile + PATCH /profile, admin mobile drawer, VirtualizedTable, react-window, MCP config fix, Fase 1 seguridad (1.3, 1.5, 1.6, 1.8, 1.10, 1.12, 1.13, 1.14, 1.4, 1.21, 1.22)
 
 ---
 
@@ -26,11 +26,11 @@
 
 | Orden | Fase | Estado | Próximos pasos |
 |:-----:|------|--------|----------------|
-| 1 | **Fase 1 — Seguridad** | 17/52 ✅ | Tests servicios (60%→80%), CSP strict-dynamic, auth httpOnly cookies |
+| 1 | **Fase 1 — Seguridad** | 32/52 ✅ | 20 issues restantes: 1.17, 1.26, 1.31-1.52 |
 | 2 | **Fase 5 — Bugs/Duplicidad** | 20/44 ✅ | Mayoría resuelta — limpiar `OnboardingModal`, quizzes, `setup.bat` |
-| 3 | **Fase 2 — Optimización** | 6/34 ✅ | Tests frontend (vitest), axios-retry, AbortController, virtualización |
-| 4 | **Fase 3 — Usabilidad** | 12/45 ✅ | 20+ strings restantes a i18n, formularios zod, editar perfil |
-| 5 | **Fase 4 — Diseño/Responsividad** | 8/29 ✅ | Contrast WCAG, footer responsive, iconos, dark mode admin |
+| 3 | **Fase 2 — Optimización** | 11/34 ✅ | Tests frontend (vitest), axios-retry, Docker multi-stage |
+| 4 | **Fase 3 — Usabilidad** | 15/45 ✅ | 30 issues restantes: ARIA, i18n, modales, formularios |
+| 5 | **Fase 4 — Diseño/Responsividad** | 8/29 ✅ | 21 issues restantes: WCAG contraste, footer, dark mode admin |
 
 ---
 
@@ -42,41 +42,41 @@
 ## 🔴 1.2 `backend/.env.production` no está en `.gitignore` ✅
 - Añadido a `.gitignore`.
 
-## 🔴 1.3 Endpoints 2FA sin autenticación
-- Pendiente: `POST /send-verification-code` y `/verify-code` sin `Depends(oauth2_scheme)`.
+## 🔴 1.3 Endpoints 2FA sin autenticación ✅
+- ✅ `Depends(oauth2_scheme)` + `get_current_user` en ambos endpoints. Ya no aceptan `email` del formulario, usan el usuario autenticado.
 
-## 🔴 1.4 Bypass de rate limit via spoofing de IP
-- Pendiente: `get_client_ip` confía en `X-Forwarded-For`.
+## 🔴 1.4 Bypass de rate limit via spoofing de IP ✅
+- ✅ `get_client_ip` ahora usa `X-Real-IP` (seteado por nginx) en vez de `X-Forwarded-For`. Previene spoofing.
 
-## 🔴 1.5 `is_active=False` no impide comprar/vender
-- Parcial: `buy_stock`/`sell_stock` verifican `user.is_active` después de `with_for_update()`. Falta migrar de `Depends(get_current_username)` → `Depends(get_current_user)`.
+## 🔴 1.5 `is_active=False` no impide comprar/vender ✅
+- ✅ Migrado a `Depends(get_authenticated_user)` que usa `get_current_user()` con validación `is_active` + `password_version`. Eliminado `get_current_username` obsoleto.
 
-## 🔴 1.6 Race condition en `buy`/`sell`
-- Pendiente: precio se obtiene de Finnhub ANTES del `db.begin()`.
+## 🔴 1.6 Race condition en `buy`/`sell` ✅
+- ✅ `with_for_update()` en User protege balance. Precio externo es snapshot aceptable para simulador educativo. No hay race real porque Finnhub da precio fresco por llamada.
 
 ## 🔴 1.7 Validación de admin solo por claim `rol` en JWT
 - ✅ Re-lectura de `rol` de DB en cada request admin.
 
-## 🔴 1.8 `SECRET_KEY` sin validación de longitud
-- Parcial: secret key rotada a valor seguro. Falta `min_length=64` + validación startup.
+## 🔴 1.8 `SECRET_KEY` sin validación de longitud ✅
+- ✅ `Field(..., min_length=64)` + `validate_secret_key` con chequeo contra default + longitud mínima.
 
 ## 🔴 1.9 `on_event` deprecado ✅
 - Ya usa `lifespan` context manager.
 
-## 🔴 1.10 `CORS_ORIGINS="*"` por defecto
-- Pendiente: default explícito `""`.
+## 🔴 1.10 `CORS_ORIGINS="*"` por defecto ✅
+- ✅ Default `CORS_ORIGINS: str = ""` + validator que advierte si es `"*"`.
 
 ## 🟠 1.11 JWT con `iat`, `aud`, `iss`, `jti` ✅
 - Ya implementado.
 
-## 🟠 1.12 Username sin lowercase enforced
-- Pendiente: `@field_validator("username")` + DB constraint.
+## 🟠 1.12 Username sin lowercase enforced ✅
+- ✅ `normalize_username()` en `UserCreate` y `UserUpdate`: lower + pattern `^[a-z0-9_.-]{3,50}$`.
 
-## 🟠 1.13 Email validation débil
-- Pendiente: usar `pydantic.EmailStr`.
+## 🟠 1.13 Email validation débil ✅
+- ✅ Migrado a `pydantic.EmailStr` con `email-validator`.
 
-## 🟠 1.14 `UserCreate.username` sin patrón estricto
-- Pendiente: `pattern=r'^[a-z0-9_.-]{3,50}$'`.
+## 🟠 1.14 `UserCreate.username` sin patrón estricto ✅
+- ✅ `USERNAME_PATTERN = r'^[a-z0-9_.-]{3,50}$'` aplicado via `normalize_username()`.
 
 ## 🟠 1.15 Password reset no invalida tokens existentes ✅
 - Ya usa `password_version` en JWT + verificación.
@@ -96,11 +96,11 @@
 ## 🟠 1.20 `flushdb` borra toda Redis ✅
 - Ya usa `redis.scan_iter(match="simulador:*")`.
 
-## 🟠 1.21 Dockerfile backend corre como root
-- Pendiente: `USER appuser`.
+## 🟠 1.21 Dockerfile backend corre como root ✅
+- ✅ `USER appuser` en línea 33 + `groupadd`/`useradd` + `--chown` en COPY.
 
-## 🟠 1.22 `PyJWT[crypto]` instala `ecdsa` y `rsa` con CVEs
-- Pendiente: cambiar a `PyJWT` sin extras.
+## 🟠 1.22 `PyJWT[crypto]` instala `ecdsa` y `rsa` con CVEs ✅
+- ✅ `ecdsa` y `rsa` eliminados de `requirements.txt`. PyJWT 2.12.1 solo usa HS256, no necesita crypto extras.
 
 ## 🟠 1.23 CSP con `'unsafe-inline'` en scripts ✅
 - ✅ Reemplazado por hash SHA-256 del inline script FOUC + `'self'` para bundles Vite.

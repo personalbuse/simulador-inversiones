@@ -66,29 +66,8 @@
     }
   },
 
-  "mcp": {
-    "filesystem": {
-      "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"],
-      "enabled": true
-    },
-    "github": {
-      "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
-      "environment": {
-        "GITHUB_TOKEN": "{env:GITHUB_TOKEN}"
-      },
-      "enabled": false
-    },
-    "web-search": {
-      "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-brave-search"],
-      "environment": {
-        "BRAVE_API_KEY": "{env:BRAVE_API_KEY}"
-      },
-      "enabled": false
-    }
-  },
+  // MCP servers configured in ~/.config/opencode/opencode.json
+  // (opencode v1.16 reads mcp from global config, not project-level)
 
   "permissions": {
     "files": {
