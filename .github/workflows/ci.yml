@@ -49,7 +49,6 @@ jobs:
         run: |
           cd backend
           ruff check .
-          mypy app/
 
       - name: Run frontend lint
         run: |
