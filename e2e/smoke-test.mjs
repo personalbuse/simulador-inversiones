@@ -122,8 +122,6 @@ async function main() {
   // Step 3: Try login
   console.log('');
   console.log('🔑 Testing login...');
-  const errCount = consoleErrors.length;
-  const failCount = failedRequests.size;
 
   await page.goto(`${BASE_URL}/login`, { waitUntil: 'networkidle', timeout: 30000 });
   await page.waitForSelector('input[name="username"]', { timeout: 10000 }).catch(() => {});
@@ -147,9 +145,7 @@ async function main() {
 
   // Filter only login-specific errors
   const loginErrors = consoleErrors.slice(0);
-
-  const loginErrors = consoleErrors.slice(errCount);
-  const loginFails = Array.from(failedRequests).slice(failCount);
+  const loginFails = Array.from(failedRequests).slice(0);
 
   const sessionExpired = loginErrors.some((e) =>
     e.text.includes('sesión ha expirado') || e.text.includes('sesion ha expirado')
