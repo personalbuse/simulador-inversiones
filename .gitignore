@@ -107,4 +107,5 @@ site/
 *.swo
 *~
 .TODO
-TODO
+TODO*.bak
+*.bak
