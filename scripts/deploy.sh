@@ -35,6 +35,10 @@ ssh -i "$PEM_FILE" -o StrictHostKeyChecking=no \
      sudo docker compose build --pull frontend backend && \
      echo '--- docker up ---' && \
      sudo docker compose up -d --force-recreate frontend backend && \
+     echo '--- migrations ---' && \
+     sudo docker compose exec -T backend alembic upgrade head && \
+     echo '--- cleanup ---' && \
+     sudo docker image prune -f && \
      echo '=== DEPLOY COMPLETADO ==="
 
 echo "=== Health check ==="
