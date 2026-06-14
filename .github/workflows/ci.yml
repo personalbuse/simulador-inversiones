@@ -196,9 +196,15 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v4
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.2
         with:
-          submodules: recursive
-
-      - name: Deploy to production
-        run: echo "Deploy to production (configure your deployment target)"
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ${{ secrets.EC2_PATH }}
+            git pull
+            git submodule update --init --remote
+            docker compose build --pull frontend backend
+            docker compose up -d --force-recreate frontend backend
