@@ -22,6 +22,7 @@ const AUTH_PAGES = [
   { path: '/learn', name: 'Learn' },
   { path: '/transactions', name: 'Transactions' },
   { path: '/profile', name: 'Profile' },
+  { path: '/admin', name: 'Admin' },
 ];
 
 async function main() {
