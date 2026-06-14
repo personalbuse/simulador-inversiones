@@ -134,7 +134,58 @@ curl http://localhost/health
 
 ---
 
-## 5. Reglas de seguridad innegociables
+## 5. Workflow de cambios (CI/CD + sync)
+
+### Flujo normal (automático)
+
+```bash
+git add -A && git commit -m "feat: ..." && git push origin main
+# → GitHub Actions corre lint → test → build → deploy a EC2 automáticamente
+```
+
+### Si editas backend o frontend (son submódulos separados)
+
+```bash
+# 1. Commitear cada submódulo por separado
+git -C backend add -A && git -C backend commit -m "fix: ..." && git -C backend push
+git -C frontend add -A && git -C frontend commit -m "fix: ..." && git -C frontend push
+
+# 2. Actualizar referencias en el repo principal
+git add backend frontend
+git commit -m "feat: implementar X"
+git push origin main
+# → CI/CD deploya todo
+```
+
+### Emergencia (si CI falla o deploy manual urgente)
+
+```bash
+./scripts/deploy.sh
+# Requiere: PEM_FILE en ~/Documentos/Estudios/UP/.../simulador-finances.pem
+```
+
+### Reglas de oro
+
+| Regla | Razón |
+|---|---|
+| **Siempre push a `main`** | El CI/CD solo deploya `main` |
+| **Nunca editar directo en EC2** | Se pierde en el próximo deploy |
+| **Hard refresh (Ctrl+F5)** tras deploy | Browser cache puede mostrar versión vieja |
+| **Revisar Actions tab** si algo falla | https://github.com/personalbuse/simulador-inversiones/actions |
+| **Submodules requieren 2 commits** | Uno dentro del submodule, otro en el main repo |
+| **Verificar `.env` no está staged** | `git status` antes de cada commit |
+
+### Pre-commit checklist
+
+```bash
+cd backend && ruff check .
+cd frontend && npm run lint
+git status  # confirmar que NO hay .env, test-results/ ni archivos sensibles
+```
+
+---
+
+## 6. Reglas de seguridad innegociables
 
 1. **NUNCA** commitear `.env` ni archivos con secretos. Verificar con `git status` antes de cada commit.
 2. **NUNCA** loguear tokens, passwords, API keys. Usar `logger.info` sin payload sensible.
@@ -147,7 +198,7 @@ curl http://localhost/health
 
 ---
 
-## 6. Áreas que necesitan atención prioritaria
+## 7. Áreas que necesitan atención prioritaria
 
 > Ver `FIF.md` para el detalle completo de las 5 fases de remediación.
 
@@ -168,7 +219,7 @@ curl http://localhost/health
 
 ---
 
-## 7. LSP & MCP configuration
+## 8. LSP & MCP configuration
 
 ### LSP (Language Server Protocol) — `.vscode/settings.json`
 
@@ -210,7 +261,7 @@ curl http://localhost/health
 
 ---
 
-## 8. Skills locales disponibles
+## 9. Skills locales disponibles
 
 Skills en `.agents/skills/` (usar `skill` para cargarlas):
 
@@ -228,7 +279,7 @@ Skills en `.agents/skills/` (usar `skill` para cargarlas):
 
 ---
 
-## 9. Anti-patrones prohibidos
+## 10. Anti-patrones prohibidos
 
 | ❌ No hacer | ✅ Hacer en su lugar |
 |---|---|
@@ -248,7 +299,7 @@ Skills en `.agents/skills/` (usar `skill` para cargarlas):
 
 ---
 
-## 10. Token efficiency patterns
+## 11. Token efficiency patterns
 
 ### Estructura de prompts
 ```
@@ -280,7 +331,7 @@ git status  # verificar .env no está staged
 
 ---
 
-## 11. Glosario del dominio
+## 12. Glosario del dominio
 
 - **Portafolio**: conjunto de acciones poseídas por un usuario + balance en USD.
 - **Índice bursátil**: indicador de un mercado (S&P 500, IBOVESPA, IPC).
@@ -293,4 +344,4 @@ git status  # verificar .env no está staged
 
 ---
 
-**Última actualización**: 2026-06-06 · **Versión**: 1.0 · **Auditoría**: `FIF.md`
+**Última actualización**: 2026-06-14 · **Versión**: 1.1 · **Auditoría**: `FIF.md`
