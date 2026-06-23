@@ -29,6 +29,12 @@ services:
     restart: unless-stopped
     networks: [internal]
 
+  sms-proxy:
+    image: alpine/socat:latest
+    command: "TCP-LISTEN:8080,fork,reuseaddr TCP:100.86.146.66:8080"
+    network_mode: "host"
+    restart: unless-stopped
+
   backend:
     build:
       context: ./backend
@@ -40,11 +46,15 @@ services:
       REDIS_URL: redis://redis:6379/0
       ENVIRONMENT: ${ENVIRONMENT:-production}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
+    extra_hosts:
+      - "sms-gateway:host-gateway"
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
+      sms-proxy:
+        condition: service_started
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
       interval: 30s
