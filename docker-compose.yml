@@ -40,6 +40,8 @@ services:
       REDIS_URL: redis://redis:6379/0
       ENVIRONMENT: ${ENVIRONMENT:-production}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
+    extra_hosts:
+      - "sms-gateway:172.18.0.1"
     depends_on:
       db:
         condition: service_healthy
