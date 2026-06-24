@@ -62,6 +62,8 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    volumes:
+      - pdf_keys:/app/keys
     networks: [internal]
 
   frontend:
@@ -94,6 +96,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  pdf_keys:
 
 networks:
   internal:
